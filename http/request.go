@@ -1,6 +1,7 @@
 package httphandler
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -21,11 +22,13 @@ func Request(conn net.Conn) {
 	path := Path(buf)
 
 	if path == "/" {
-		_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\nContent-Type: text/plain\r\n\r\n"))
+		resp := "HTTP/1.1 200 OK\r\n\r\n"
+		_, err = conn.Write([]byte(resp))
 	} else if strings.Contains(path, "echo/") {
 		content := strings.SplitN(path, "echo/", 2)[1]
 		contentLength := len(content)
-		_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\nContent-Type: text/plain\r\n\r\nContent-Length: " + strconv.Itoa(contentLength) + "\r\n\r\n" + content + "\r\n\r\n"))
+		resp := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(contentLength), content)
+		_, err = conn.Write([]byte(resp))
 	} else {
 		_, err = conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 	}
