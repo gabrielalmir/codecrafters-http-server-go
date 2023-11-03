@@ -24,10 +24,21 @@ func Request(conn net.Conn) {
 	if path == "/" {
 		resp := "HTTP/1.1 200 OK\r\n\r\n"
 		_, err = conn.Write([]byte(resp))
-	} else if strings.Contains(path, "echo/") {
+	} else if strings.Contains(path, "/echo") {
 		content := strings.SplitN(path, "echo/", 2)[1]
 		contentLength := len(content)
 		resp := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(contentLength), content)
+		_, err = conn.Write([]byte(resp))
+	} else if strings.Contains(path, "/user-agent") {
+		req := strings.Split(string(buf), "\r\n")
+		var userAgent string
+		for _, v := range req {
+			if strings.Contains(v, "User-Agent") {
+				userAgent = strings.Split(v, "User-Agent: ")[1]
+			}
+		}
+		resp := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(userAgent)), userAgent)
+
 		_, err = conn.Write([]byte(resp))
 	} else {
 		_, err = conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
