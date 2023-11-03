@@ -17,11 +17,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn, err := listener.Accept()
-	if err != nil {
-		log.Fatalf("Error accepting: %s", err.Error())
-		os.Exit(1)
-	}
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Fatalf("Error accepting: %s", err.Error())
+			os.Exit(1)
+		}
 
-	httphandler.Request(conn)
+		go httphandler.Request(conn)
+	}
 }
