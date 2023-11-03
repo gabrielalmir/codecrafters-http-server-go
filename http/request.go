@@ -21,28 +21,20 @@ func Request(conn net.Conn) {
 	// Write data to the connection
 	path := Path(buf)
 
-	if path == "/" {
-		resp := "HTTP/1.1 200 OK\r\n\r\n"
-		_, err = conn.Write([]byte(resp))
-	} else if strings.Contains(path, "/echo") {
-		content := strings.SplitN(path, "echo/", 2)[1]
-		contentLength := len(content)
-		resp := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(contentLength), content)
-		_, err = conn.Write([]byte(resp))
-	} else if strings.Contains(path, "/user-agent") {
-		req := strings.Split(string(buf), "\r\n")
-		var userAgent string
-		for _, v := range req {
-			if strings.Contains(v, "User-Agent") {
-				userAgent = strings.Split(v, "User-Agent: ")[1]
-			}
-		}
-		resp := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(userAgent)), userAgent)
+	// generic router implementation
+	router := Router{}
 
-		_, err = conn.Write([]byte(resp))
-	} else {
-		_, err = conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
+	router.AddRoute(Route{Path: "^/$", Handler: handleRoot})
+	router.AddRoute(Route{Path: "^/echo/.*$", Handler: handleEcho})
+	router.AddRoute(Route{Path: "^/user-agent$", Handler: handleUserAgent})
+
+	route, ok := router.Route(path)
+
+	if !ok {
+		route = Route{Path: "^/404$", Handler: handleNotFound}
 	}
+
+	_, err = conn.Write([]byte(route.Handler(buf)))
 
 	if err != nil {
 		log.Fatalf("Error writing: %s", err.Error())
@@ -59,4 +51,29 @@ func Request(conn net.Conn) {
 
 func Path(r []byte) string {
 	return strings.SplitN(string(r), " ", 3)[1]
+}
+
+func handleRoot(r []byte) string {
+	return "HTTP/1.1 200 OK\r\n\r\n"
+}
+
+func handleEcho(r []byte) string {
+	path := Path(r)
+	message := strings.Split(path, "/echo/")[1]
+	return fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(message)), message)
+}
+
+func handleUserAgent(r []byte) string {
+	req := strings.Split(string(r), "\r\n")
+	var userAgent string
+	for _, v := range req {
+		if strings.Contains(v, "User-Agent") {
+			userAgent = strings.Split(v, "User-Agent: ")[1]
+		}
+	}
+	return fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(userAgent)), userAgent)
+}
+
+func handleNotFound(r []byte) string {
+	return "HTTP/1.1 404 Not Found\r\n\r\n"
 }
