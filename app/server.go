@@ -1,48 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net"
 	"os"
+
+	httphandler "github.com/codecrafters-io/http-server-starter-go/http"
 )
 
 func main() {
-	fmt.Println("Logs from your program will appear here!")
-
 	// Bind to TCP port 4221 on all interfaces
-	l, err := net.Listen("tcp", "0.0.0.0:4221")
+	listener, err := net.Listen("tcp", "0.0.0.0:4221")
+
 	if err != nil {
-		fmt.Println("Failed to bind to port 4221")
+		log.Fatalf("Error listening: %s", err.Error())
 		os.Exit(1)
 	}
 
-	conn, err := l.Accept()
+	conn, err := listener.Accept()
 	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
+		log.Fatalf("Error accepting: %s", err.Error())
 		os.Exit(1)
 	}
 
-	// Read data from the connection
-	buf := make([]byte, 1024)
-	_, err = conn.Read(buf)
-
-	if err != nil {
-		fmt.Println("Error reading: ", err.Error())
-		os.Exit(1)
-	}
-
-	// Write data to the connection
-	_, err = conn.Write([]byte("HTTP/1.1 200 OK \r\n\r\n"))
-
-	if err != nil {
-		fmt.Println("Error writing: ", err.Error())
-		os.Exit(1)
-	}
-
-	err = conn.Close()
-
-	if err != nil {
-		fmt.Println("Error closing: ", err.Error())
-		os.Exit(1)
-	}
+	httphandler.Request(conn)
 }
