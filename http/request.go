@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -22,7 +23,9 @@ func Request(conn net.Conn) {
 	if path == "/" {
 		_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
 	} else if strings.Contains(path, "echo/") {
-		_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n" + strings.SplitN(path, "echo/", 2)[1]))
+		content := strings.SplitN(path, "echo/", 2)[1]
+		contentLength := len(content)
+		_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Length: " + strconv.Itoa(contentLength) + "\r\n\r\n" + content))
 	} else {
 		_, err = conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 	}
