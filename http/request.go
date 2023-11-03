@@ -25,7 +25,7 @@ func Request(conn net.Conn) {
 	} else if strings.Contains(path, "echo/") {
 		content := strings.SplitN(path, "echo/", 2)[1]
 		contentLength := len(content)
-		_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Length: " + strconv.Itoa(contentLength) + "\r\n\r\n" + content))
+		_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\nContent-Type: text/plain\r\n\r\nContent-Length: " + strconv.Itoa(contentLength) + "\r\n\r\n" + content))
 	} else {
 		_, err = conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 	}
