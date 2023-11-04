@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	httphandler "http-server-starter-go/http"
 	"log"
 	"net"
@@ -8,7 +9,6 @@ import (
 )
 
 var Args []string
-var Directory string
 
 func main() {
 	// Bind to TCP port 4221 on all interfaces
@@ -18,6 +18,11 @@ func main() {
 		log.Fatalf("Error listening: %s", err.Error())
 		os.Exit(1)
 	}
+
+	directory := flag.String("directory", "./", "Directory to serve")
+	flag.Parse()
+
+	os.Setenv("DIRECTORY", *directory)
 
 	for {
 		conn, err := listener.Accept()

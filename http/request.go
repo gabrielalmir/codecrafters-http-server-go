@@ -1,7 +1,6 @@
 package httphandler
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -86,16 +85,15 @@ func handleNotFound(r []byte) string {
 }
 
 func handleFile(r []byte) string {
-	directory := flag.String("directory", "./", "Directory to serve")
-	flag.Parse()
 
 	path := Path(r)
 	method := Method(r)
 
 	filename := strings.Split(path, "/files/")[1]
+	directory := os.Getenv("DIRECTORY")
 
 	if method == "GET" {
-		file := File{directory: *directory, matcher: filename}
+		file := File{directory: directory, matcher: filename}
 		content, err := file.Handle()
 
 		if err != nil {

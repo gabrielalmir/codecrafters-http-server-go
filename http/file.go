@@ -2,7 +2,6 @@ package httphandler
 
 import (
 	"errors"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -27,8 +26,7 @@ func (f *File) Handle() (string, error) {
 	if f.Exists() {
 		content, err := f.Read()
 		if err != nil {
-			log.Fatalln("Error reading file: ", err.Error())
-			panic(err)
+			return "", err
 		}
 		return string(content), nil
 	}
