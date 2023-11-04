@@ -29,7 +29,7 @@ func Request(conn net.Conn) {
 	router.AddRoute(Route{Path: "^/$", Handler: handleRoot, Method: "GET"})
 	router.AddRoute(Route{Path: "^/echo/.*$", Handler: handleEcho, Method: "GET"})
 	router.AddRoute(Route{Path: "^/user-agent$", Handler: handleUserAgent, Method: "GET"})
-	router.AddRoute(Route{Path: "^/file/.*$", Handler: handleFile, Method: "GET"})
+	router.AddRoute(Route{Path: "^/files/.*$", Handler: handleFile, Method: "GET"})
 
 	route, ok := router.Route(path, method)
 
@@ -92,7 +92,7 @@ func handleFile(r []byte) string {
 	path := Path(r)
 	method := Method(r)
 
-	filename := strings.Split(path, "/file/")[1]
+	filename := strings.Split(path, "/files/")[1]
 
 	if method == "GET" {
 		file := File{directory: *directory, matcher: filename}

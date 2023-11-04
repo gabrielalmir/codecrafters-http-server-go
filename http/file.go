@@ -2,6 +2,7 @@ package httphandler
 
 import (
 	"errors"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -12,7 +13,6 @@ type File struct {
 }
 
 func (f *File) Exists() bool {
-	/// equivalent to os.join
 	file := filepath.Join(f.directory, f.matcher)
 	_, err := os.Stat(file)
 
@@ -27,7 +27,8 @@ func (f *File) Handle() (string, error) {
 	if f.Exists() {
 		content, err := f.Read()
 		if err != nil {
-			return "", err
+			log.Fatalln("Error reading file: ", err.Error())
+			panic(err)
 		}
 		return string(content), nil
 	}
