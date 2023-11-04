@@ -86,12 +86,8 @@ func handleNotFound(r []byte) string {
 }
 
 func handleFile(r []byte) string {
-	directory := flag.String("directory", "", "Directory to serve")
+	directory := flag.String("directory", "./", "Directory to serve")
 	flag.Parse()
-
-	if *directory == "" {
-		*directory = "."
-	}
 
 	path := Path(r)
 	method := Method(r)
