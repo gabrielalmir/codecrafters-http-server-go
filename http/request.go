@@ -99,8 +99,8 @@ func handleFile(r []byte) string {
 	filename := strings.Split(path, "/file/")[1]
 
 	if method == "GET" {
-		file := File{directory: *directory}
-		content, err := file.Handle(filename)
+		file := File{directory: *directory, matcher: filename}
+		content, err := file.Handle()
 
 		if err != nil {
 			return handleNotFound(r)

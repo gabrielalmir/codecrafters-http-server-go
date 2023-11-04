@@ -3,25 +3,33 @@ package httphandler
 import (
 	"errors"
 	"os"
+	"path/filepath"
 )
 
 type File struct {
 	directory string
+	matcher   string
 }
 
-func (f *File) Exists(path string) bool {
-	_, err := os.Stat(path)
-	return !errors.Is(err, os.ErrNotExist)
+func (f *File) Exists() bool {
+	/// equivalent to os.join
+	file := filepath.Join(f.directory, f.matcher)
+	_, err := os.Stat(file)
+
+	return !os.IsNotExist(err)
 }
 
-func Read(path string) ([]byte, error) {
-	return os.ReadFile(path)
+func (f *File) Read() ([]byte, error) {
+	return os.ReadFile(filepath.Join(f.directory, f.matcher))
 }
 
-func (f *File) Handle(path string) (string, error) {
-	if f.Exists(path) {
-		file, _ := Read(path)
-		return string(file), nil
+func (f *File) Handle() (string, error) {
+	if f.Exists() {
+		content, err := f.Read()
+		if err != nil {
+			return "", err
+		}
+		return string(content), nil
 	}
 	return "", errors.New("File not found")
 }
