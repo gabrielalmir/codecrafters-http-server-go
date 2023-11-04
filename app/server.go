@@ -8,8 +8,6 @@ import (
 	"os"
 )
 
-var Args []string
-
 func main() {
 	// Bind to TCP port 4221 on all interfaces
 	listener, err := net.Listen("tcp", "0.0.0.0:4221")
