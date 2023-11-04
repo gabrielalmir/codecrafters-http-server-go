@@ -1,12 +1,12 @@
 package httphandler
 
 import (
-	"fmt"
 	"regexp"
 )
 
 type Route struct {
 	Path    string
+	Method  string
 	Handler func([]byte) string
 }
 
@@ -20,10 +20,9 @@ func (r *Router) AddRoute(route Route) {
 	r.Routes = append(r.Routes, route)
 }
 
-func (r *Router) Route(path string) (Route, bool) {
-	fmt.Println("path: ", path)
+func (r *Router) Route(path string, method string) (Route, bool) {
 	for _, route := range r.Routes {
-		if ok, _ := regexp.MatchString(route.Path, path); ok {
+		if ok, _ := regexp.MatchString(route.Path, path); ok && route.Method == method {
 			return route, true
 		}
 	}

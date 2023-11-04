@@ -1,12 +1,14 @@
 package main
 
 import (
+	httphandler "http-server-starter-go/http"
 	"log"
 	"net"
 	"os"
-
-	httphandler "github.com/codecrafters-io/http-server-starter-go/http"
 )
+
+var Args []string
+var Directory string
 
 func main() {
 	// Bind to TCP port 4221 on all interfaces

@@ -1,6 +1,7 @@
 package httphandler
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -20,15 +21,17 @@ func Request(conn net.Conn) {
 
 	// Write data to the connection
 	path := Path(buf)
+	method := Method(buf)
 
 	// generic router implementation
 	router := Router{}
 
-	router.AddRoute(Route{Path: "^/$", Handler: handleRoot})
-	router.AddRoute(Route{Path: "^/echo/.*$", Handler: handleEcho})
-	router.AddRoute(Route{Path: "^/user-agent$", Handler: handleUserAgent})
+	router.AddRoute(Route{Path: "^/$", Handler: handleRoot, Method: "GET"})
+	router.AddRoute(Route{Path: "^/echo/.*$", Handler: handleEcho, Method: "GET"})
+	router.AddRoute(Route{Path: "^/user-agent$", Handler: handleUserAgent, Method: "GET"})
+	router.AddRoute(Route{Path: "^/file/.*$", Handler: handleFile, Method: "GET"})
 
-	route, ok := router.Route(path)
+	route, ok := router.Route(path, method)
 
 	if !ok {
 		route = Route{Path: "^/404$", Handler: handleNotFound}
@@ -51,6 +54,10 @@ func Request(conn net.Conn) {
 
 func Path(r []byte) string {
 	return strings.SplitN(string(r), " ", 3)[1]
+}
+
+func Method(r []byte) string {
+	return strings.SplitN(string(r), " ", 3)[0]
 }
 
 func handleRoot(r []byte) string {
@@ -76,4 +83,31 @@ func handleUserAgent(r []byte) string {
 
 func handleNotFound(r []byte) string {
 	return "HTTP/1.1 404 Not Found\r\n\r\n"
+}
+
+func handleFile(r []byte) string {
+	directory := flag.String("directory", "", "Directory to serve")
+	flag.Parse()
+
+	if *directory == "" {
+		*directory = "."
+	}
+
+	path := Path(r)
+	method := Method(r)
+
+	filename := strings.Split(path, "/file/")[1]
+
+	if method == "GET" {
+		file := File{directory: *directory}
+		content, err := file.Handle(filename)
+
+		if err != nil {
+			return handleNotFound(r)
+		}
+
+		return fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(content)), content)
+	}
+
+	return "HTTP/1.1 405 Method Not Allowed\r\n\r\n"
 }
