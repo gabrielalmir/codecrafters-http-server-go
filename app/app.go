@@ -25,13 +25,13 @@ func NewApp() *App {
 }
 
 func handleRoot(r []byte) string {
-	return handler.SendResponse(r, 200, map[string]string{}, "Hello World")
+	return handler.SendResponse(r, 200, map[string]string{"Content-Type": "text/plain"}, "Hello World")
 }
 
 func handleEcho(r []byte) string {
 	path := handler.Path(r)
 	message := strings.Split(path, "/echo/")[1]
-	return handler.SendResponse(r, 200, map[string]string{}, message)
+	return handler.SendResponse(r, 200, map[string]string{"Content-Type": "text/plain"}, message)
 }
 
 func handleUserAgent(r []byte) string {
@@ -42,7 +42,7 @@ func handleUserAgent(r []byte) string {
 			userAgent = strings.Split(v, "User-Agent: ")[1]
 		}
 	}
-	return handler.SendResponse(r, 200, map[string]string{}, userAgent)
+	return handler.SendResponse(r, 200, map[string]string{"Content-Type": "text/plain"}, userAgent)
 }
 
 func handleFile(r []byte) string {
