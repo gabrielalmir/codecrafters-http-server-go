@@ -49,3 +49,7 @@ func Path(r []byte) string {
 func Method(r []byte) string {
 	return strings.SplitN(string(r), " ", 3)[0]
 }
+
+func Body(r []byte) string {
+	return strings.SplitN(string(r), "\r\n\r\n", 2)[1]
+}

@@ -19,6 +19,7 @@ func NewApp() *App {
 	app.Router.AddRoute(handler.Route{Path: "^/echo/.*$", Handler: handleEcho, Method: "GET"})
 	app.Router.AddRoute(handler.Route{Path: "^/user-agent$", Handler: handleUserAgent, Method: "GET"})
 	app.Router.AddRoute(handler.Route{Path: "^/files/.*$", Handler: handleFile, Method: "GET"})
+	app.Router.AddRoute(handler.Route{Path: "^/files/.*$", Handler: handleFile, Method: "POST"})
 
 	return app
 }
@@ -60,6 +61,15 @@ func handleFile(r []byte) string {
 		}
 
 		return handler.SendResponse(r, 200, map[string]string{"Content-Type": "application/octet-stream"}, content)
+	} else if method == "POST" {
+		body := handler.Body(r)
+		file := handler.File{Filename: filename, Directory: directory, Content: body}
+
+		if file.Create() {
+			return handler.SendResponse(r, 201, map[string]string{}, "Created")
+		}
+
+		return handler.SendResponse(r, 500, map[string]string{}, "Internal Server Error")
 	}
 
 	return handler.SendResponse(r, 405, map[string]string{}, "Method Not Allowed")
