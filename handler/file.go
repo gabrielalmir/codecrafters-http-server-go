@@ -1,4 +1,4 @@
-package httphandler
+package handler
 
 import (
 	"errors"
@@ -7,19 +7,19 @@ import (
 )
 
 type File struct {
-	directory string
-	matcher   string
+	Directory string
+	Filename  string
 }
 
 func (f *File) Exists() bool {
-	file := filepath.Join(f.directory, f.matcher)
+	file := filepath.Join(f.Directory, f.Filename)
 	_, err := os.Stat(file)
 
 	return !os.IsNotExist(err)
 }
 
 func (f *File) Read() ([]byte, error) {
-	return os.ReadFile(filepath.Join(f.directory, f.matcher))
+	return os.ReadFile(filepath.Join(f.Directory, f.Filename))
 }
 
 func (f *File) Handle() (string, error) {
