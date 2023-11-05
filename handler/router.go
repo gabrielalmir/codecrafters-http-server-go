@@ -28,7 +28,3 @@ func (r *Router) Route(path string, method string) (Route, bool) {
 	}
 	return Route{}, false
 }
-
-func NotFound(r []byte) string {
-	return "HTTP/1.1 404 Not Found\r\n\r\n"
-}

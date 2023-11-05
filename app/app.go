@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"http-server-starter-go/handler"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -26,13 +24,13 @@ func NewApp() *App {
 }
 
 func handleRoot(r []byte) string {
-	return "HTTP/1.1 200 OK\r\n\r\n"
+	return handler.SendResponse(r, 200, map[string]string{}, "Hello World")
 }
 
 func handleEcho(r []byte) string {
 	path := handler.Path(r)
 	message := strings.Split(path, "/echo/")[1]
-	return fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(message)), message)
+	return handler.SendResponse(r, 200, map[string]string{}, message)
 }
 
 func handleUserAgent(r []byte) string {
@@ -43,11 +41,10 @@ func handleUserAgent(r []byte) string {
 			userAgent = strings.Split(v, "User-Agent: ")[1]
 		}
 	}
-	return fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(userAgent)), userAgent)
+	return handler.SendResponse(r, 200, map[string]string{}, userAgent)
 }
 
 func handleFile(r []byte) string {
-
 	path := handler.Path(r)
 	method := handler.Method(r)
 
@@ -62,8 +59,8 @@ func handleFile(r []byte) string {
 			return handler.NotFound(r)
 		}
 
-		return fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: %s\r\n\r\n%s", strconv.Itoa(len(content)), content)
+		return handler.SendResponse(r, 200, map[string]string{"Content-Type": "application/octet-stream"}, content)
 	}
 
-	return "HTTP/1.1 405 Method Not Allowed\r\n\r\n"
+	return handler.SendResponse(r, 405, map[string]string{}, "Method Not Allowed")
 }
